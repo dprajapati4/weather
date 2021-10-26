@@ -1,7 +1,6 @@
 import './App.css';
-import React, { useEffect, useState}
-from 'react';
-import Weather from './components/Weather'
+import React, { useEffect, useState } from 'react';
+import Weather from './components/Weather';
 
 function App() {
   const [lat, setLat] = useState([]);
@@ -10,23 +9,31 @@ function App() {
 
   useEffect(() => {
     const fetchData = async () => {
-      navigator.geolocation.getCurrentPosition(function(position) {
+      navigator.geolocation.getCurrentPosition(function (position) {
         setLat(position.coords.latitude);
         setLong(position.coords.longitude);
       });
 
-      await fetch(`${process.env.REACT_APP_API_URL}/weather/?lat=${lat}&lon=${long}&units=metric&APPID=${process.env.REACT_APP_API_KEY}`)
-      .then(res => res.json())
-      .then(result => {
-        setData(result)
-      });
-    }
+      await fetch(
+        `${process.env.REACT_APP_API_URL}/onecall?lat=${lat}&lon=${long}&units=metric&APPID=${process.env.REACT_APP_API_KEY}`
+      )
+        .then((res) => res.json())
+        .then((result) => {
+          setData(result);
+        });
+    };
     fetchData();
-  }, [lat,long])
+  }, [lat, long]);
 
   return (
     <div className="App">
-    {typeof data.main !== 'undefined' ? <Weather weatherData={data}/> : <div></div> }
+      {typeof data.daily !== 'undefined' ? (
+        data.daily.map((day) => {
+          return <Weather weatherData={day} timezone={data.timezone} />;
+        })
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 }
